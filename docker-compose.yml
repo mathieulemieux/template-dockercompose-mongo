@@ -1,0 +1,37 @@
+version: ${DOCKERCOMPOSE_API_VERSION}
+
+services:
+  mongodb:
+    build: ./services/mongodb
+    image: ${DOCKERHUB_REGISTRY}/mongodb:${MONGODB_IMG_TAG}
+    container_name: "${APP_NAME}_mongodb"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
+    ports:
+      - "${MONGODB_ENV_PORT}:27017"
+    restart: always
+    volumes:
+      - ${MONGODB_DB_VOLUME}:/data/db
+    # - ${MONGODB_SEEDDATA_VOLUME}:/docker-entrypoint-initdb.d
+
+  mongoexpress:
+    build: ./services/mongoexpress
+    image: ${DOCKERHUB_REGISTRY}/mongoexpress:${MONGOEXPRESS_IMG_TAG}
+    container_name: "${APP_NAME}_mongoexpress"
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=${ME_CONFIG_MONGODB_SERVER}
+      - ME_CONFIG_MONGODB_PORT=${ME_CONFIG_MONGODB_PORT}
+      - ME_CONFIG_MONGODB_ENABLE_ADMIN=${ME_CONFIG_MONGODB_ENABLE_ADMIN}
+      - ME_CONFIG_MONGODB_AUTH_DATABASE=${ME_CONFIG_MONGODB_AUTH_DATABASE}
+      - ME_CONFIG_MONGODB_AUTH_USERNAME=${ME_CONFIG_MONGODB_AUTH_USERNAME}
+      - ME_CONFIG_MONGODB_AUTH_PASSWORD=${ME_CONFIG_MONGODB_AUTH_PASSWORD}
+      - ME_CONFIG_BASICAUTH_USERNAME=${ME_CONFIG_BASICAUTH_USERNAME}
+      - ME_CONFIG_BASICAUTH_PASSWORD=${ME_CONFIG_BASICAUTH_PASSWORD}
+    depends_on:
+      - mongodb
+    ports:
+      - "${MONGOEXPRESS_DEV_PORT}:8081"
+    restart: always
+
